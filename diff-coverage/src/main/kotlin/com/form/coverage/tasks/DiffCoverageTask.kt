@@ -108,6 +108,12 @@ open class DiffCoverageTask : DefaultTask() {
             log.debug("Starting to retrieve modified lines from $sourceDescription'")
             saveDiffTo(projectRoot.resolve(configuration.reportConfiguration.baseReportDir)).apply {
                 log.info("diff content saved to '$absolutePath'")
+                if (log.isDebugEnabled) {
+                    log.debug("Diff content:")
+                    pullDiff().forEach {
+                        log.debug(it)
+                    }
+                }
             }
         }
         return ModifiedLinesDiffParser().collectModifiedLines(

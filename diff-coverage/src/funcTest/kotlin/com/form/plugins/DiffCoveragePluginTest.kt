@@ -205,7 +205,7 @@ class DiffCoveragePluginTest {
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage")
+                .withArguments("diffCoverage", "-d")
                 .buildAndFail()
 
         // assert
