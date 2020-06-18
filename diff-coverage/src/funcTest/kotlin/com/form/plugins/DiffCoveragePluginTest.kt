@@ -183,10 +183,11 @@ class DiffCoveragePluginTest {
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage")
+                .withArguments("diffCoverage", "-d")
                 .buildAndFail()
 
         // assert
+        println(result.output)
         assertTrue(result.output.contains("lines covered ratio is 0.6, but expected minimum is 0.7"))
         assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
     }
@@ -205,12 +206,11 @@ class DiffCoveragePluginTest {
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage", "-d")
+                .withArguments("diffCoverage")
                 .buildAndFail()
 
         // assert
         val expectedErrorMessage = "Git directory not found in the project root ${testProjectDir.root.absolutePath}"
-        println(result.output)
         assertTrue(result.output.contains(expectedErrorMessage))
         assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
     }

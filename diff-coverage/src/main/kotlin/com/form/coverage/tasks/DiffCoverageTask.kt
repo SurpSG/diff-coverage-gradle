@@ -110,9 +110,7 @@ open class DiffCoverageTask : DefaultTask() {
                 log.info("diff content saved to '$absolutePath'")
                 if (log.isDebugEnabled) {
                     log.debug("Diff content:")
-                    pullDiff().forEach {
-                        log.debug(it)
-                    }
+                    log.debug(pullDiff().joinToString("\n"))
                 }
             }
         }
