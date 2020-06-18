@@ -33,7 +33,7 @@ jobs:
       run: chmod +x gradlew
       
     - name: build & test
-      run: ./gradlew check    
+      run: ./gradlew check -i    
       
     - name: create coverage report
       run: ./gradlew jacocoRootReport
