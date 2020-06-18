@@ -210,6 +210,7 @@ class DiffCoveragePluginTest {
 
         // assert
         val expectedErrorMessage = "Git directory not found in the project root ${testProjectDir.root.absolutePath}"
+        println(result.output)
         assertTrue(result.output.contains(expectedErrorMessage))
         assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
     }
