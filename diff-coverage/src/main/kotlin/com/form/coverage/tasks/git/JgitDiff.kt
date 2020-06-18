@@ -26,7 +26,7 @@ class JgitDiff(workingDir: File) {
 
     private fun initRepository(workingDir: File): Repository = try {
         FileRepositoryBuilder().apply {
-            readEnvironment()
+//            readEnvironment()
             findGitDir(workingDir)
             isMustExist = true
         }.build()

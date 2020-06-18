@@ -105,7 +105,7 @@ open class DiffCoverageTask : DefaultTask() {
             configuration: ChangesetCoverageConfiguration
     ): Map<String, Set<Int>> {
         val diffSource = getDiffSource(projectRoot, configuration.diffSource).apply {
-            log.debug("Starting to retrieve modified lines from $sourceDescription'")
+            log.debug("Starting to retrieve modified lines from $sourceDescription")
             saveDiffTo(projectRoot.resolve(configuration.reportConfiguration.baseReportDir)).apply {
                 log.info("diff content saved to '$absolutePath'")
                 if (log.isDebugEnabled) {
