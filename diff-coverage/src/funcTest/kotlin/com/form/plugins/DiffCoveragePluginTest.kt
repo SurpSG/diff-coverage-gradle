@@ -1,21 +1,13 @@
 package com.form.plugins
 
 import com.form.coverage.tasks.git.JgitDiff
-import org.assertj.core.api.Assertions.assertThat
-import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome.FAILED
-import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.junit.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.eclipse.jgit.api.Git
+import org.gradle.internal.impldep.bsh.commands.dir
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import org.mockserver.integration.ClientAndServer
-import org.mockserver.integration.ClientAndServer.startClientAndServer
-import org.mockserver.model.HttpRequest.request
-import org.mockserver.model.HttpResponse.response
-import org.slf4j.LoggerFactory
 import java.io.File
-import java.nio.file.Paths
 
 
 class DiffCoveragePluginTest {
@@ -133,40 +125,45 @@ class DiffCoveragePluginTest {
             appendText("\n!*/")
         }
         println("gitIgnore:\n${gitignore.readText()}")
-        val git = NativeGit(testProjectDir.root)
-        git.apply {
-            exec("init")
-            exec("add", ".")
-            exec("commit", "--allow-empty", " -n", "-m", "\"initial commit\"")
-        }
+        val git: Git = Git.init()
+                .setDirectory(testProjectDir.root)
+                .call()
+        println("Created a new repository at " + git.repository.directory)
+
+
+
+//        val git = NativeGit(testProjectDir.root)
+//        git.apply {
+////            exec("init")
+//            exec("add", ".")
+//            exec("commit", "--allow-empty", " -n", "-m", "\"initial commit\"")
+//        }
+        git.add().addFilepattern(".").call();
+        git.commit().setMessage("Added all").call();
 
         val oldVersionFile = "src/main/java/com/java/test/Class1.java"
         testProjectDir.root.toPath().resolve(oldVersionFile).let {
             getResourceFile<DiffCoveragePluginTest>("Class1GitTest.java")
                     .copyTo(it.toFile(), true)
         }
-        git.apply {
-            exec("add", oldVersionFile)
-            exec("commit", "-m", "\"add all\"")
-        }
+        git.add().addFilepattern(oldVersionFile).call();
+        git.commit().setMessage("Added old file version").call();
+//        git.apply {
+//            exec("add", oldVersionFile)
+//            exec("commit", "-m", "\"add all\"")
+//        }
 
         getResourceFile<DiffCoveragePluginTest>("src").copyRecursively(
                 testProjectDir.root.resolve(File("src")),
                 true
         )
 
-        git.apply {
-            println("== git status")
-            println(exec("status"))
-            println("2====== git diff HEAD")
+        NativeGit(testProjectDir.root).apply {
             println(exec("diff"))
-            println("==")
+            println("----")
             println(exec("diff", "HEAD"))
-            println("==parse head")
-            println(exec("rev-parse", "HEAD"))
-            println("==read HEAD")
-            print(testProjectDir.root.resolve(".git/HEAD").readText())
         }
+
         println("0------------------------------")
         println(JgitDiff(testProjectDir.root).obtain("refs/heads/master"))
         println("00---------------")
