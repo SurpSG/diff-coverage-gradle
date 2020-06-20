@@ -63,12 +63,25 @@ class JgitDiff(workingDir: File) {
 
     private fun DiffFormatter.initialize() {
         setRepository(repository)
-//        repository.config.setEnum(
-//                ConfigConstants.CONFIG_CORE_SECTION,
-//                null,
-//                ConfigConstants.CONFIG_KEY_AUTOCRLF,
-//                CoreConfig.AutoCRLF.INPUT
-//        )
+
+        val autoCRLF: CoreConfig.AutoCRLF = CoreConfig.AutoCRLF.FALSE
+        val enum = repository.config.getEnum(
+                ConfigConstants.CONFIG_CORE_SECTION,
+                null,
+                ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                autoCRLF
+        )
+        println("autoCRLF: $enum")
+        repository.config.setEnum(
+                ConfigConstants.CONFIG_CORE_SECTION,
+                null,
+                ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                if ("\r\n" == System.lineSeparator()) {
+                    CoreConfig.AutoCRLF.TRUE
+                } else {
+                    CoreConfig.AutoCRLF.INPUT
+                }
+        )
         pathFilter = TreeFilter.ALL
     }
 
@@ -100,8 +113,22 @@ fun main() {
     }
     val copyRecursively = File("C:\\Users\\Crulio\\IdeaProjects\\diff-coverage-gradle-fork\\diff-coverage\\src\\funcTest\\resources\\src")
             .copyRecursively(file.resolve("src"), true)
+    val repository: Repository = FileRepositoryBuilder.create(File(file, ".git")).apply {
+        config.setEnum(
+                ConfigConstants.CONFIG_CORE_SECTION,
+                null,
+                ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                if ("\r\n" == System.lineSeparator()) {
+                    CoreConfig.AutoCRLF.TRUE
+                } else {
+                    CoreConfig.AutoCRLF.INPUT
+                }
+        )
+//        config.save()
+        create()
+    }
+    Git(repository).use { git ->
 
-    Git.init().setDirectory(file).call().use { git ->
         val oldVersionFile = "src\\main\\java\\com\\java\\test\\Class1.java"
         git.add().addFilepattern(".gitignore").call();
         git.add().addFilepattern(oldVersionFile).call();

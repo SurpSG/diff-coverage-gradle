@@ -1,12 +1,15 @@
 package com.form.plugins
 
 import com.form.coverage.tasks.git.JgitDiff
-import org.junit.*
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ConfigConstants
+import org.eclipse.jgit.lib.CoreConfig
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.eclipse.jgit.api.Git
-import org.gradle.testkit.runner.TaskOutcome.FAILED
-import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -76,7 +79,20 @@ class DiffCoveragePluginTest {
             appendText("\n!gitignore")
             appendText("\n!*/")
         }
-        Git.init().setDirectory(testProjectDir.root).call().use { git ->
+        val repository: Repository = FileRepositoryBuilder.create(File(testProjectDir.root, ".git")).apply {
+            config.setEnum(
+                    ConfigConstants.CONFIG_CORE_SECTION,
+                    null,
+                    ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                    if ("\r\n" == System.lineSeparator()) {
+                        CoreConfig.AutoCRLF.TRUE
+                    } else {
+                        CoreConfig.AutoCRLF.INPUT
+                    }
+            )
+            create()
+        }
+        Git(repository).use { git ->
             git.add().addFilepattern(".").call();
             git.commit().setMessage("Added all").call();
 
@@ -127,7 +143,20 @@ class DiffCoveragePluginTest {
             appendText("\n!gitignore")
             appendText("\n!*/")
         }
-        Git.init().setDirectory(testProjectDir.root).call().use { git ->
+        val repository: Repository = FileRepositoryBuilder.create(File(testProjectDir.root, ".git")).apply {
+            config.setEnum(
+                    ConfigConstants.CONFIG_CORE_SECTION,
+                    null,
+                    ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                    if ("\r\n" == System.lineSeparator()) {
+                        CoreConfig.AutoCRLF.TRUE
+                    } else {
+                        CoreConfig.AutoCRLF.INPUT
+                    }
+            )
+            create()
+        }
+        Git(repository).use { git ->
             git.add().addFilepattern(".").call();
             git.commit().setMessage("Added all").call();
 
