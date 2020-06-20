@@ -155,6 +155,8 @@ class DiffCoveragePluginTest {
         )
 
         git.apply {
+            println("== git status")
+            println(exec("status"))
             println("2====== git diff HEAD")
             println(exec("diff"))
             println("==")
