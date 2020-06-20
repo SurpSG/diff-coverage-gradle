@@ -26,8 +26,9 @@ class JgitDiff(workingDir: File) {
 
     private fun initRepository(workingDir: File): Repository = try {
         FileRepositoryBuilder().apply {
+            findGitDir(workingDir)
             readEnvironment()
-            findGitDir(workingDir.resolve(".git"))
+//            findGitDir(workingDir.resolve(".git"))
 //            findGitDir()
             isMustExist = true
         }.build()
@@ -55,17 +56,19 @@ class JgitDiff(workingDir: File) {
             }
         }
 
-        return String(diffContent.toByteArray())
+        return String(diffContent.toByteArray()).apply {
+            println(this)
+        }
     }
 
     private fun DiffFormatter.initialize() {
         setRepository(repository)
-        repository.config.setEnum(
-                ConfigConstants.CONFIG_CORE_SECTION,
-                null,
-                ConfigConstants.CONFIG_KEY_AUTOCRLF,
-                CoreConfig.AutoCRLF.TRUE
-        )
+//        repository.config.setEnum(
+//                ConfigConstants.CONFIG_CORE_SECTION,
+//                null,
+//                ConfigConstants.CONFIG_KEY_AUTOCRLF,
+//                CoreConfig.AutoCRLF.INPUT
+//        )
         pathFilter = TreeFilter.ALL
     }
 
@@ -79,4 +82,49 @@ class JgitDiff(workingDir: File) {
             }
         }
     }
+}
+
+fun main() {
+    val file = File("C:\\Users\\Crulio\\tmp\\test")
+    file.deleteRecursively()
+    file.mkdir()
+    file.resolve(".gitignore").apply {
+        createNewFile()
+        writeText("""
+        *
+        !*.java
+        !.gitignore
+        !*/
+    """.trimIndent())
+
+    }
+    val copyRecursively = File("C:\\Users\\Crulio\\IdeaProjects\\diff-coverage-gradle-fork\\diff-coverage\\src\\funcTest\\resources\\src")
+            .copyRecursively(file.resolve("src"), true)
+
+    Git.init().setDirectory(file).call().use { git ->
+        val oldVersionFile = "src\\main\\java\\com\\java\\test\\Class1.java"
+        git.add().addFilepattern(".gitignore").call();
+        git.add().addFilepattern(oldVersionFile).call();
+        git.commit().setMessage("Added old file").call();
+        git.add().addFilepattern(".").call();
+        git.commit().setMessage("Added all").call();
+
+        File("C:\\Users\\Crulio\\IdeaProjects\\diff-coverage-gradle-fork\\diff-coverage\\src\\funcTest\\resources\\Class1GitTest.java")
+                .copyTo(file.resolve(oldVersionFile), true)
+        println(JgitDiff(file).obtain("HEAD"))
+//        git.add().addFilepattern(oldVersionFile).call();
+//        git.commit().setMessage("Added old file version").call();
+//
+//        File("C:\\Users\\Crulio\\IdeaProjects\\diff-coverage-gradle-fork\\diff-coverage\\src\\funcTest\\resources\\src")
+//                .copyRecursively(file.resolve("src"), true)
+//
+//        println("=================")
+//        println(JgitDiff(file).obtain("HEAD"))
+    }
+}
+
+inline fun <reified T> getResourceFile(filePath: String): File {
+    return T::class.java.classLoader
+            .getResource(filePath)!!.file
+            .let(::File)
 }
