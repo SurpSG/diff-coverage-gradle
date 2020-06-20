@@ -156,7 +156,10 @@ class DiffCoveragePluginTest {
 
         git.apply {
             println("2====== git diff HEAD")
+            println(exec("diff"))
+            println("==")
             println(exec("diff", "HEAD"))
+            println("==")
         }
         println("0------------------------------")
         println(JgitDiff(testProjectDir.root).obtain("HEAD"))
