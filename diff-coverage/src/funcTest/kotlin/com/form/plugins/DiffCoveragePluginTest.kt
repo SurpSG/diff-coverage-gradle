@@ -129,14 +129,15 @@ class DiffCoveragePluginTest {
         val gitignore = testProjectDir.root.resolve(".gitignore").apply {
             appendText("\n*")
             appendText("\n!*.java")
+            appendText("\n!gitignore")
             appendText("\n!*/")
         }
         println("gitIgnore:\n${gitignore.readText()}")
         val git = NativeGit(testProjectDir.root)
         git.apply {
             exec("init")
-            exec("add", ".gitignore")
-            exec("commit", "-m", "\"initial commit\"")
+            exec("add", ".")
+            exec("commit", "--allow-empty", " -n", "-m", "\"initial commit\"")
         }
 
         val oldVersionFile = "src/main/java/com/java/test/Class1.java"
