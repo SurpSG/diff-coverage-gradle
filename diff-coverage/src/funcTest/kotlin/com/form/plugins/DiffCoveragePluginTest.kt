@@ -162,7 +162,8 @@ class DiffCoveragePluginTest {
             println(exec("diff"))
             println("==")
             println(exec("diff", "HEAD"))
-            println("==")
+            println("==parse head")
+            println(exec("rev-parse", "HEAD"))
         }
         println("0------------------------------")
         println(JgitDiff(testProjectDir.root).obtain("HEAD"))
